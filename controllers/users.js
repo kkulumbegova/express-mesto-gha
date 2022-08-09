@@ -23,9 +23,7 @@ const getUser = (req, res) =>
   User.findById(req.params.userId)
     .then((user) => {
       if (user === null) {
-        res
-          .status(ERROR_VALIDATION)
-          .send({ message: 'Пользователь не найден' });
+        res.status(ERROR_NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(200).send({ data: user });
       }
@@ -33,7 +31,7 @@ const getUser = (req, res) =>
     .catch((err) => {
       if (err.name === 'CastError') {
         res
-          .status(ERROR_NOT_FOUND)
+          .status(ERROR_VALIDATION)
           .send({ message: 'Передан пользователь с некорректным id' });
       } else {
         res
