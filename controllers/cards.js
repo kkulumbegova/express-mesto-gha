@@ -61,7 +61,7 @@ const addLike = (req, res) =>
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Передан несуществующий id карточки' });
       } else {
-        res.status(500).send({ message: `На сервере произошла ошибка` });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 
@@ -82,8 +82,14 @@ const deleteLike = (req, res) =>
       if (err.name === 'CastError') {
         res.status(400).send({ message: 'Передан несуществующий id карточки' });
       } else {
-        res.status(500).send({ message: `На сервере произошла ошибка` });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 
-module.exports = { createCard, getCards, deleteCard, addLike, deleteLike };
+module.exports = {
+  createCard,
+  getCards,
+  deleteCard,
+  addLike,
+  deleteLike,
+};
