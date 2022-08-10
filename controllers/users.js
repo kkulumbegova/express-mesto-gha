@@ -5,7 +5,7 @@ const errorValidation = 400;
 const errorServer = 500;
 
 const createUser = (req, res) => User.create(req.body)
-  .then((user) => res.status(201).send(user))
+  .then((user) => res.send(user))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(errorValidation).send({
@@ -21,7 +21,7 @@ const getUser = (req, res) => User.findById(req.params.userId)
     if (user === null) {
       res.status(errorNotFound).send({ message: 'Пользователь не найден' });
     } else {
-      res.status(200).send({ data: user });
+      res.send({ data: user });
     }
   })
   .catch((err) => {
@@ -35,7 +35,7 @@ const getUser = (req, res) => User.findById(req.params.userId)
   });
 
 const getUsers = (req, res) => User.find({})
-  .then((users) => res.status(200).send(users))
+  .then((users) => res.send(users))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(errorValidation).send({ message: 'Переданы некорректные данные' });
@@ -50,17 +50,16 @@ const updateUser = (req, res) => User.findByIdAndUpdate(
   {
     new: true,
     runValidators: true,
-    upsert: true,
   },
 )
-  .then((user) => res.status(200).send(user))
+  .then((user) => res.send(user))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(errorValidation).send({
         message: 'Переданы некорректные данные при обновлении профиля',
       });
     } else if (err.name === 'CastError') {
-      res.status(errorNotFound).send({ message: 'Пользователь не найден' });
+      res.status(errorValidation).send({ message: 'Пользователь не найден' });
     } else {
       res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
     }
@@ -72,10 +71,9 @@ const updateAvatar = (req, res) => User.findByIdAndUpdate(
   {
     new: true,
     runValidators: true,
-    upsert: true,
   },
 )
-  .then((user) => res.status(200).send(user))
+  .then((user) => res.send(user))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(errorValidation).send({

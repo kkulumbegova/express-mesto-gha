@@ -8,7 +8,7 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(errorValidation).send({
@@ -21,7 +21,7 @@ const createCard = (req, res) => {
 };
 
 const getCards = (req, res) => Card.find({})
-  .then((cards) => res.status(200).send(cards))
+  .then((cards) => res.send(cards))
   .catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(errorValidation).send({ message: 'Переданы некорректные данные' });
@@ -35,7 +35,7 @@ const deleteCard = (req, res) => Card.findByIdAndDelete(req.params.cardId)
     if (card === null) {
       res.status(errorNotFound).send({ message: 'Карточка не найдена' });
     } else {
-      res.status(200).send(card);
+      res.send(card);
     }
   })
   .catch((err) => {
@@ -55,14 +55,14 @@ const addLike = (req, res) => Card.findByIdAndUpdate(
     if (card === null) {
       res.status(errorNotFound).send({ message: 'Передан несуществующий id' });
     } else {
-      res.status(200).send(card);
+      res.send(card);
     }
   })
   .catch((err) => {
     if (err.name === 'CastError') {
       res.status(errorValidation).send({ message: 'Передан некорректный id для постановки/удаления лайка' });
     } else {
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
     }
   });
 
@@ -75,7 +75,7 @@ const deleteLike = (req, res) => Card.findByIdAndUpdate(
     if (card === null) {
       res.status(errorNotFound).send({ message: 'Передан несуществующий id' });
     } else {
-      res.status(200).send(card);
+      res.send(card);
     }
   })
   .catch((err) => {
