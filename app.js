@@ -1,14 +1,13 @@
-import { connect } from 'mongoose';
-import express, { json } from 'express';
-import usersRouter from './routes/users';
-import cardsRouter from './routes/cards';
+const mongoose = require('mongoose');
+const express = require('express');
+const usersRouter = require('./routes/users');
+const cardsRouter = require('./routes/cards');
 
-// eslint-disable-next-line no-undef
 const { PORT = 3000 } = process.env;
 
-connect('mongodb://localhost:27017/mestodb');
+mongoose.connect('mongodb://localhost:27017/mestodb');
 const app = express();
-app.use(json());
+app.use(express.json());
 
 app.use((req, res, next) => {
   req.user = {
