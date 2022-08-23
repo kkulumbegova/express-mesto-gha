@@ -30,22 +30,25 @@ const getCards = (req, res) => Card.find({})
     }
   });
 
-const deleteCard = (req, res) => Card.findByIdAndDelete(req.params.cardId)
-  .then((card) => {
-    if (card === null) {
-      res.status(errorNotFound).send({ message: 'Карточка не найдена' });
-    } else {
-      res.send(card);
-    }
-  })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res.status(errorValidation).send({ message: 'Передан некорректный id' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
-
+const deleteCard = (req, res) => {
+  Card.findByIdAndDelete(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        res.status(errorNotFound).send({ message: 'Карточка не найдена' });
+      } else if (req.user._id === card.owner.toString()) {
+        res.send(card);
+      } else {
+        res.status(403).send({ message: 'Невозможно удалить чужую карточку' });
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(errorValidation).send({ message: 'Передан некорректный id' });
+      } else {
+        res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
+      }
+    });
+};
 const addLike = (req, res) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
