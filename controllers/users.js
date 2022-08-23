@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const ForbiddenError = require('../errors/forbidden-err');
-const UnautorizedError = require('../errors/unautorized-err');
+const UnauthorizedError = require('../errors/unautorized-err');
 const ConflictError = require('../errors/conflict-err');
 
 const login = (req, res, next) => {
@@ -20,8 +20,7 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch((err) => {
-      if (err.message === 'Неправильные почта или пароль') { throw new UnautorizedError('Введен неверный email или пароль'); }
-      next(err);
+      next(new UnauthorizedError(err));
     });
 };
 
@@ -39,12 +38,8 @@ const createUser = (req, res, next) => {
         // eslint-disable-next-line consistent-return
         .catch((err) => {
           if (err.code === 11000) {
-            throw new ConflictError('Пользователь с таким email уже существует');
+            next(new ConflictError(err));
           }
-          if (err.name === 'ValidationError') {
-            throw new ValidationError('Переданы некорректные данные при создании пользователя');
-          }
-          next(err);
         });
     });
 };
