@@ -5,10 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const ValidationError = require('../errors/validation-err');
 const ForbiddenError = require('../errors/forbidden-err');
 const UnautorizedError = require('../errors/unautorized-err');
-
-const errorNotFound = 404;
-const errorValidation = 400;
-const errorServer = 500;
+const ConflictError = require('../errors/conflict-err');
 
 const login = (req, res, next) => {
   const {
@@ -22,13 +19,13 @@ const login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch(() => {
-      throw new UnautorizedError('Введен неверный email или пароль');
-    })
-    .catch(next);
+    .catch((err) => {
+      if (err.message === 'Неправильные почта или пароль') { throw new UnautorizedError('Введен неверный email или пароль'); }
+      next(err);
+    });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -42,35 +39,28 @@ const createUser = (req, res) => {
         // eslint-disable-next-line consistent-return
         .catch((err) => {
           if (err.code === 11000) {
-            return res.status(400).send({ message: 'Пользователь с таким email уже существует' });
+            throw new ConflictError('Пользователь с таким email уже существует');
           }
           if (err.name === 'ValidationError') {
-            res.status(errorValidation).send({
-              message: 'Переданы некорректные данные при создании пользователя',
-            });
-          } else {
-            res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
+            throw new ValidationError('Переданы некорректные данные при создании пользователя');
           }
-        });
+        })
+        .catch(next);
     });
 };
-const getUserInfo = (req, res) => User.findById(req.user._id)
+const getUserInfo = (req, res, next) => User.findById(req.user._id)
   .then((user) => {
     if (!user) {
-      res.status(errorNotFound).send({ message: 'Пользователь не найден' });
-    } else {
-      res.send({ data: user });
+      throw new NotFoundError('Пользователь не найден');
     }
+    res.send(user);
   })
   .catch((err) => {
     if (err.name === 'CastError') {
-      res
-        .status(errorValidation)
-        .send({ message: 'Передан пользователь с некорректным id' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
+      throw new ValidationError('Передан пользователь с некорректным id');
     }
-  });
+  })
+  .catch(next);
 
 const getUser = (req, res, next) => User.findById(req.params.userId)
   .then((user) => {
@@ -90,10 +80,9 @@ const getUsers = (req, res, next) => User.find({})
   .catch((err) => {
     if (err.name === 'ValidationError') {
       throw new ValidationError('Переданы некорректные данные');
-    } else {
-      next(err);
     }
-  });
+  })
+  .catch(next);
 
 const updateUser = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,
