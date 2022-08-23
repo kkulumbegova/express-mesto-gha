@@ -44,8 +44,8 @@ const createUser = (req, res, next) => {
           if (err.name === 'ValidationError') {
             throw new ValidationError('Переданы некорректные данные при создании пользователя');
           }
-        })
-        .catch(next);
+          next(err);
+        });
     });
 };
 const getUserInfo = (req, res, next) => User.findById(req.user._id)
@@ -59,8 +59,8 @@ const getUserInfo = (req, res, next) => User.findById(req.user._id)
     if (err.name === 'CastError') {
       throw new ValidationError('Передан пользователь с некорректным id');
     }
-  })
-  .catch(next);
+    next(err);
+  });
 
 const getUser = (req, res, next) => User.findById(req.params.userId)
   .then((user) => {
@@ -72,8 +72,8 @@ const getUser = (req, res, next) => User.findById(req.params.userId)
     if (err.name === 'CastError') {
       throw new ValidationError('Передан пользователь с некорректным id');
     }
-  })
-  .catch(next);
+    next(err);
+  });
 
 const getUsers = (req, res, next) => User.find({})
   .then((users) => res.send(users))
@@ -81,8 +81,8 @@ const getUsers = (req, res, next) => User.find({})
     if (err.name === 'ValidationError') {
       throw new ValidationError('Переданы некорректные данные');
     }
-  })
-  .catch(next);
+    next(err);
+  });
 
 const updateUser = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,
