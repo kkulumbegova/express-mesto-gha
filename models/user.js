@@ -48,10 +48,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
           if (!matched) {
             return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-          return ({
-            name: user.name,
-            avatar: user.avatar,
-          });
+          return user;
         });
     });
 };
