@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/conflict-err');
 const NotFound = require('../errors/not-found-err');
+const UnautorizedError = require('../errors/unautorized-err');
 
 const login = (req, res, next) => {
   const {
@@ -15,6 +16,9 @@ const login = (req, res, next) => {
         httpOnly: true,
       });
       res.send({ token });
+    })
+    .catch(() => {
+      next(new UnautorizedError('Неверный пользователь или пароль'));
     })
     .catch(next);
 };

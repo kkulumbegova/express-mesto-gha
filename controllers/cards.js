@@ -46,7 +46,7 @@ const deleteLike = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .then((card) => {
-    if (!card === null) {
+    if (!card) {
       throw next(new NotFound('Передан несуществующий id'));
     } res.send(card);
   })
