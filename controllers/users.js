@@ -4,10 +4,6 @@ const User = require('../models/user');
 const ConflictError = require('../errors/conflict-err');
 const NotFound = require('../errors/not-found-err');
 
-const errorNotFound = 404;
-const errorValidation = 400;
-const errorServer = 500;
-
 const login = (req, res, next) => {
   const {
     email, password,
@@ -45,6 +41,7 @@ const createUser = (req, res, next) => {
         });
     });
 };
+
 const getUserInfo = (req, res, next) => User.findById(req.user._id)
   .then((user) => {
     if (!user) {
@@ -54,35 +51,19 @@ const getUserInfo = (req, res, next) => User.findById(req.user._id)
   })
   .catch(next);
 
-const getUser = (req, res) => User.findById(req.params.userId)
+const getUser = (req, res, next) => User.findById(req.params.userId)
   .then((user) => {
-    if (user === null) {
-      res.status(errorNotFound).send({ message: 'Пользователь не найден' });
-    } else {
-      res.send({ data: user });
-    }
+    if (!user) {
+      throw next(new NotFound('Пользователь не найден'));
+    } res.send({ data: user });
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res
-        .status(errorValidation)
-        .send({ message: 'Передан пользователь с некорректным id' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
+  .catch(next);
 
-const getUsers = (req, res) => User.find({})
+const getUsers = (req, res, next) => User.find({})
   .then((users) => res.send(users))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      res.status(errorValidation).send({ message: 'Переданы некорректные данные' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
+  .catch(next);
 
-const updateUser = (req, res) => User.findByIdAndUpdate(
+const updateUser = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,
   { name: req.body.name, about: req.body.about },
   {
@@ -98,18 +79,12 @@ const updateUser = (req, res) => User.findByIdAndUpdate(
     }
   })
   .catch((err) => {
-    if (err.name === 'ValidationError') {
-      res.status(errorValidation).send({
-        message: 'Переданы некорректные данные при обновлении профиля',
-      });
-    } else if (err.name === 'CastError') {
-      res.status(errorValidation).send({ message: 'Пользователь не найден' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
+    if (err.name === 'CastError') {
+      throw next(new NotFound('Пользователь не найден'));
+    } return next(err);
   });
 
-const updateAvatar = (req, res) => User.findByIdAndUpdate(
+const updateAvatar = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,
   { avatar: req.body.avatar },
   {
@@ -118,17 +93,7 @@ const updateAvatar = (req, res) => User.findByIdAndUpdate(
   },
 )
   .then((user) => res.send(user))
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      res.status(errorValidation).send({
-        message: 'Переданы некорректные данные при обновлении аватара',
-      });
-    } else if (err.name === 'CastError') {
-      res.status(errorValidation).send({ message: 'Передан некорректный id' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
+  .catch(next);
 
 module.exports = {
   getUserInfo, createUser, getUser, getUsers, updateUser, updateAvatar, login,
