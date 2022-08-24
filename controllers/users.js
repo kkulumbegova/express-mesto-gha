@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ConflictError = require('../errors/conflict-err');
+const NotFound = require('../errors/not-found-err');
 
 const errorNotFound = 404;
 const errorValidation = 400;
@@ -44,23 +45,14 @@ const createUser = (req, res, next) => {
         });
     });
 };
-const getUserInfo = (req, res) => User.findById(req.user._id)
+const getUserInfo = (req, res, next) => User.findById(req.user._id)
   .then((user) => {
     if (!user) {
-      res.status(errorNotFound).send({ message: 'Пользователь не найден' });
-    } else {
-      res.send({ data: user });
+      throw next(new NotFound('Пользователь не найден'));
     }
+    res.send({ data: user });
   })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      res
-        .status(errorValidation)
-        .send({ message: 'Передан пользователь с некорректным id' });
-    } else {
-      res.status(errorServer).send({ message: 'На сервере произошла ошибка' });
-    }
-  });
+  .catch(next);
 
 const getUser = (req, res) => User.findById(req.params.userId)
   .then((user) => {
