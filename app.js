@@ -7,6 +7,7 @@ const auth = require('./middlewares/auth');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const { signupValidation, signinValidation } = require('./middlewares/validation');
+const NotFound = require('./errors/not-found-err');
 
 const { PORT = 3000 } = process.env;
 
@@ -21,14 +22,12 @@ app.post('/signin', signinValidation, login);
 app.use(auth);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
-app.use('/*', (err, res) => {
-  if (res) {
-    res.status(404).send({ message: 'Неверный путь' });
-  }
-});
+app.use('/*', (req, res, next) => next(new NotFound('Неверный путь')));
 app.use(errors());
 app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({ message: err.message });
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+  res.status(statusCode).send({ message });
   next();
 });
 app.listen(PORT, () => {});

@@ -4,6 +4,7 @@ const User = require('../models/user');
 const ConflictError = require('../errors/conflict-err');
 const NotFound = require('../errors/not-found-err');
 const UnautorizedError = require('../errors/unautorized-err');
+const ValidationError = require('../errors/validation-err');
 
 const login = (req, res, next) => {
   const {
@@ -19,8 +20,7 @@ const login = (req, res, next) => {
     })
     .catch(() => {
       next(new UnautorizedError('Неверный пользователь или пароль'));
-    })
-    .catch(next);
+    });
 };
 
 const createUser = (req, res, next) => {
@@ -40,10 +40,14 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.code === 11000) {
             next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+          } else if (err.name === 'ValidationError') {
+            next(new ValidationError('Переданы некорректные данные'));
+          } else {
+            next(err);
           }
-          return next(err);
         });
-    });
+    })
+    .catch(next);
 };
 
 const getUserInfo = (req, res, next) => User.findById(req.user._id)
@@ -75,17 +79,13 @@ const updateUser = (req, res, next) => User.findByIdAndUpdate(
     runValidators: true,
   },
 )
-  .then((user) => {
-    if (user._id.toString() === (req.user._id)) {
-      res.send(user);
-    } else {
-      res.status(403).send({ message: 'Невозможно изменять данные' });
-    }
-  })
+  .then((user) => res.send(user))
   .catch((err) => {
-    if (err.name === 'CastError') {
-      throw next(new NotFound('Пользователь не найден'));
-    } return next(err);
+    if (err.name === 'ValidationError') {
+      throw next(new ValidationError('Переданы некорректные данные'));
+    } else {
+      next(err);
+    }
   });
 
 const updateAvatar = (req, res, next) => User.findByIdAndUpdate(
@@ -97,7 +97,13 @@ const updateAvatar = (req, res, next) => User.findByIdAndUpdate(
   },
 )
   .then((user) => res.send(user))
-  .catch(next);
+  .catch((err) => {
+    if (err.name === 'ValidationError') {
+      throw next(new ValidationError('Переданы некорректные данные'));
+    } else {
+      next(err);
+    }
+  });
 
 module.exports = {
   getUserInfo, createUser, getUser, getUsers, updateUser, updateAvatar, login,
