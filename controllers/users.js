@@ -55,7 +55,7 @@ const getUserInfo = (req, res, next) => User.findById(req.user._id)
     if (!user) {
       throw next(new NotFound('Пользователь не найден'));
     }
-    res.send({ data: user });
+    res.send(user);
   })
   .catch(next);
 
@@ -63,7 +63,7 @@ const getUser = (req, res, next) => User.findById(req.params.userId)
   .then((user) => {
     if (!user) {
       throw next(new NotFound('Пользователь не найден'));
-    } res.send({ data: user });
+    } res.send(user);
   })
   .catch(next);
 
