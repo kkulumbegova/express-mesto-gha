@@ -12,9 +12,9 @@ router.post('/signin', signinValidation, login);
 router.use(auth);
 router.use('/', usersRouter);
 router.use('/', cardsRouter);
-router.post('/signout', (req, res) => {
-  res.clearCookie('jwt').send({ message: 'Выход' });
-});
+// router.post('/signout', (req, res) => {
+//   res.send({ message: 'Выход' });
+// });
 router.use('/*', (req, res, next) => next(new NotFound('Неверный путь')));
 
 module.exports = router;

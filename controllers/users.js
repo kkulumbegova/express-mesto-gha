@@ -13,10 +13,10 @@ const login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'secret-key', { expiresIn: '7d' });
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        sameSite: true,
-      });
+      // res.cookie('jwt', token, {
+      //   httpOnly: true,
+      //   sameSite: true,
+      // });
       res.send({ token });
     })
     .catch(() => {
