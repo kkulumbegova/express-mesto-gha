@@ -10,7 +10,7 @@ const { PORT = 3000 } = process.env;
 const options = {
   origin: [
     'http://localhost:3006',
-    'https://ВАШ ДОМЕЙН С ДОКУМЕНТА',
+    'http://kulumbegova.nomoredomains.sbs',
     'https://YOUR.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
