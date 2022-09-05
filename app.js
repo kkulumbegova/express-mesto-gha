@@ -10,7 +10,7 @@ const { PORT = 3000 } = process.env;
 const options = {
   origin: [
     'http://localhost:3006',
-    'https://kulumbegova.nomoredomains.sbs',
+    'https://kulumbegova.mesto.nomorepartiesxyz.ru',
     'https://kkulumbegova.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
