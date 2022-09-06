@@ -12,6 +12,7 @@ const options = {
   origin: [
     'http://localhost:3006',
     'https://kulumbegova.mesto.nomorepartiesxyz.ru',
+    'http://kulumbegova.mesto.nomorepartiesxyz.ru',
     'https://kkulumbegova.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
