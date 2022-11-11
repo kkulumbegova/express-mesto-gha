@@ -11,8 +11,8 @@ const { PORT = 3000 } = process.env;
 const options = {
   origin: [
     'http://localhost:3006',
-    'https://kulumbegova.mesto.nomorepartiesxyz.ru',
-    'http://kulumbegova.mesto.nomorepartiesxyz.ru',
+    'https://kulumbegova.mesto.nomoredomains.club',
+    'http://kulumbegova.mesto.nomoredomains.club',
     'https://kkulumbegova.github.io',
   ],
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
